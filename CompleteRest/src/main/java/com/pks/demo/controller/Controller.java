@@ -1,6 +1,8 @@
 package com.pks.demo.controller;
 
 import java.io.Console;
+import java.sql.SQLException;
+import java.util.List;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -15,9 +17,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.slf4j.Logger;
@@ -28,6 +32,8 @@ import com.pks.demo.MyContent;
 import com.pks.demo.MyToken;
 import com.pks.demo.MyUserDetailsService;
 import com.pks.demo.exception.RestRequestException;
+import com.pks.demo.model.Product;
+import com.pks.demo.model.ProductUtil;
 import com.pks.demo.util.AuthUtil;
 import com.pks.demo.util.AuthenticationRequest;
 
@@ -76,6 +82,51 @@ public class Controller {
 		response.addCookie(cookie);
 		MyToken myToken = new MyToken(token);
 		return myToken;
+	}
+
+	@RequestMapping("/products")
+	public List<Product> getProducts() throws ClassNotFoundException, SQLException {
+		ProductUtil productUtil = new ProductUtil();
+		List<Product> products = productUtil.getProducts();
+		return products;
+
+	}
+
+	@RequestMapping("/products/{id}")
+	public Product getProduct(@PathVariable String id) throws ClassNotFoundException, SQLException {
+		ProductUtil productUtil = new ProductUtil();
+		Product product = productUtil.getProduct(id);
+		if (product == null) {
+			throw new RestRequestException("No Product found for the id: " + id);
+		}
+		return product;
+	}
+
+	@RequestMapping(value = "/products", method = RequestMethod.POST)
+	public String createProduct(@RequestBody Product product) throws Exception {
+		ProductUtil productUtil = new ProductUtil();
+		boolean bool = productUtil.createProduct(product);
+
+		if (bool) {
+			return product.getProductName() + " Product added to the database with id : " + product.getProductId();
+		} else {
+			throw new RestRequestException(
+					"Product adding failed maybe another product has the same id : " + product.getProductId() + "!!");
+
+		}
+
+	}
+	
+	@RequestMapping(value="/products/{id}",method = RequestMethod.PUT)
+	public String updateProduct(@RequestBody Product product, @PathVariable String id ) throws ClassNotFoundException, SQLException {
+		ProductUtil productUtil=new ProductUtil();
+		boolean bool= productUtil.updateProduct(product,id);
+		if(bool) {
+			return "Product updated and the new id is  "+product.getProductId();
+		}
+		
+		throw new RestRequestException(
+				"Product updating failed for the  id : " + id + "!!");
 	}
 
 }
