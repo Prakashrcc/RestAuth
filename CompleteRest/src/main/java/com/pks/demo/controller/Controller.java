@@ -47,28 +47,16 @@ public class Controller {
 
 	@Autowired
 	private RestUserDetailsService restUserDetailsService;
-	
-	 Logger logger = LoggerFactory.getLogger(Controller.class);
 
-
-	@RequestMapping("/")
-	public void exception() {
-		throw new RestRequestException("No mapping/resource found for the end point {/}");
-	}
-
-	@RequestMapping("/a")
-	public RestContent getContent() {
-		RestContent restContent = new RestContent("Yes the content is shown");
-		return restContent;
-	}
+	Logger logger = LoggerFactory.getLogger(Controller.class);
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-	public Authtoken authenticate(@RequestBody AuthenticationRequest authenticationRequest, HttpServletResponse response)
-			throws Exception {
+	public Authtoken authenticate(@RequestBody AuthenticationRequest authenticationRequest,
+			HttpServletResponse response) throws Exception {
 
 		String username = authenticationRequest.getUsername();
 		String password = authenticationRequest.getPassword();
-	
+
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
 				username, password);
 
@@ -87,14 +75,14 @@ public class Controller {
 		Authtoken authtoken = new Authtoken(token);
 		return authtoken;
 	}
-	
+
 	@RequestMapping("/signout")
 	public String logout(HttpServletResponse response) {
 		logger.info("logout method accessed");
 		Cookie cookie = new Cookie("Auth", null);
 		cookie.setMaxAge(0);
 		cookie.setPath("/");
-		
+
 		response.addCookie(cookie);
 		logger.info("logout method completed");
 		return "Log out Successfull";
@@ -111,17 +99,16 @@ public class Controller {
 		return products;
 
 	}
-	
-	@RequestMapping(value = "/products", params = { "orderBy", "searchString", "maxRecord","startAt" }, method = RequestMethod.GET)
+
+	@RequestMapping(value = "/products", params = { "orderBy", "searchString", "maxRecord",
+			"startAt" }, method = RequestMethod.GET)
 	public List<Product> getProductuse(@RequestParam("searchString") String searchString,
-										@RequestParam("orderBy") String orderBy,
-										@RequestParam("maxRecord") String maxRecord,
-										@RequestParam("startAt") String startAt) throws Exception{
-		
-		ProductUtil productUtil=new ProductUtil();
-		List<Product> products= productUtil.getProductsUsingParameter(searchString,orderBy, maxRecord,startAt);
-		
-		
+			@RequestParam("orderBy") String orderBy, @RequestParam("maxRecord") String maxRecord,
+			@RequestParam("startAt") String startAt) throws Exception {
+
+		ProductUtil productUtil = new ProductUtil();
+		List<Product> products = productUtil.getProductsUsingParameter(searchString, orderBy, maxRecord, startAt);
+
 		return products;
 	}
 
@@ -159,19 +146,25 @@ public class Controller {
 			return "Product updated and the new id is  " + product.getProductId();
 		}
 
-		throw new ProductNotFoundException("Product updating failed for the  id : " + id + "!!  No Product found with id : "+id);
+		throw new ProductNotFoundException(
+				"Product updating failed for the  id : " + id + "!!  No Product found with id : " + id);
+	}
+
+	@RequestMapping(value = "/products/{id}", method = RequestMethod.DELETE)
+	public String deleteProduct(@PathVariable String id) {
+		ProductUtil productUtil = new ProductUtil();
+		boolean bool = productUtil.deleteProduct(id);
+		if (bool) {
+			return "Product deleted with id : " + id;
+		} else {
+			throw new ProductNotFoundException(
+					"Product deletion failed for the  id : " + id + "!!  No Product found with id : " + id);
+		}
 	}
 	
-	@RequestMapping(value = "/products/{id}" , method = RequestMethod.DELETE)
-	public String deleteProduct(@PathVariable String id) {
-		ProductUtil productUtil= new ProductUtil();
-		boolean bool = productUtil.deleteProduct(id);
-		if(bool) {
-			return "Product deleted with id : "+id;
-		}
-		else {
-			throw new ProductNotFoundException("Product deletion failed for the  id : " + id + "!!  No Product found with id : "+id);
-		}
+	@RequestMapping("/")
+	public void exception() {
+		throw new RestRequestException("No mapping/resource found for the end point {/}");
 	}
 
 }
