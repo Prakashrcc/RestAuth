@@ -1,9 +1,9 @@
 package com.pks.demo;
 
-public class MyContent {
+public class RestContent {
 	private String content;
 
-	public MyContent(String content) {
+	public RestContent(String content) {
 		super();
 		this.content = content;
 	}

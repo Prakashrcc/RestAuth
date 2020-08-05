@@ -13,5 +13,11 @@ public class RestExceptionHandler {
 	RestException restException=	new RestException(e.getMessage(), HttpStatus.BAD_REQUEST , LocalDateTime.now());
 	return new ResponseEntity<Object>(restException,HttpStatus.BAD_REQUEST);
 	}
+	
+	@ExceptionHandler(value= {ProductNotFoundException.class})
+	public ResponseEntity<Object> handleProductNotFoundException(ProductNotFoundException e){
+	RestException restException=	new RestException(e.getMessage(), HttpStatus.NOT_FOUND , LocalDateTime.now());
+	return new ResponseEntity<Object>(restException,HttpStatus.NOT_FOUND);
+	}
 
 }

@@ -14,17 +14,17 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.pks.demo.filter.CustomFilter;
+import com.pks.demo.filter.AuthFilter;
 @EnableWebSecurity
 public class SecurityConfigurer extends WebSecurityConfigurerAdapter{
 	@Autowired
-	private MyUserDetailsService myUserDetailsService;
+	private RestUserDetailsService restUserDetailsService;
 	@Autowired
-	private CustomFilter customFilter;
+	private AuthFilter authFilter;
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(myUserDetailsService);
+		auth.userDetailsService(restUserDetailsService);
 	}
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -33,7 +33,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter{
 			.antMatchers(HttpMethod.POST,"/authenticate").permitAll()
 								.anyRequest().authenticated()
 								.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		http.addFilterBefore(customFilter, UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
 				
 	}
 
@@ -44,7 +44,7 @@ public class SecurityConfigurer extends WebSecurityConfigurerAdapter{
 	}
 	@Bean
 	public PasswordEncoder passwordEncoder() {
-	    return NoOpPasswordEncoder.getInstance();
+	    return  new BCryptPasswordEncoder();
 	}
 	
 }

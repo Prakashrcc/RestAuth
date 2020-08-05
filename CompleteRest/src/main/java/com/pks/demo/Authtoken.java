@@ -1,9 +1,9 @@
 package com.pks.demo;
 
-public class MyToken {
+public class Authtoken {
 	private String token;
 
-	public MyToken(String token) {
+	public Authtoken(String token) {
 		super();
 		this.token = token;
 	}

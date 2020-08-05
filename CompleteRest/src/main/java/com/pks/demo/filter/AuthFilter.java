@@ -17,25 +17,25 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.pks.demo.MyUserDetailsService;
+import com.pks.demo.RestUserDetailsService;
 import com.pks.demo.util.AuthUtil;
 
 @Component
-public class CustomFilter extends OncePerRequestFilter {
+public class AuthFilter extends OncePerRequestFilter {
 	@Autowired
-	private MyUserDetailsService myUserDetailsService;
+	private RestUserDetailsService restUserDetailsService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		String authHeader = request.getHeader("My-Auth");
+		String authHeader = request.getHeader("Auth");
 		
 		if(authHeader==null) {
 		Cookie[] cookies=request.getCookies();
 		if (cookies != null) {
 			 for (Cookie cookie : cookies) {
-			   if (cookie.getName().equals("My-Auth")) {
+			   if (cookie.getName().equals("Auth")) {
 				   authHeader=cookie.getValue();
 				   break;
 			    }
@@ -51,7 +51,7 @@ public class CustomFilter extends OncePerRequestFilter {
 			username = authUtil.extractUsername(authHeader);
 		}
 		if (username != null) {
-			UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
+			UserDetails userDetails = restUserDetailsService.loadUserByUsername(username);
 			try {
 				if (authUtil.validateToken(authHeader)) {
 					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
